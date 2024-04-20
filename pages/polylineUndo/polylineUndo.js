@@ -56,7 +56,7 @@ class UndoManager {
         try {
             command.execute();
             this.undoStack.push(command);
-            this.updateButtonState();
+            this.updateButtonState(); //appel de la méthode
         } catch (e) {
             console.log("Erreur. On ne peut pas exécuter la commande !");
         }
@@ -77,7 +77,7 @@ class UndoManager {
             const commande = this.undoStack.pop();
             commande.undo();
             this.redoStack.push(commande)
-            this.updateButtonState();
+            this.updateButtonState(); //appel de la méthode
         }
     }
 
@@ -86,7 +86,7 @@ class UndoManager {
             const commande = this.redoStack.pop();
             commande.execute();
             this.undoStack.push(commande)
-            this.updateButtonState();
+            this.updateButtonState(); //appel de la méthode
         }
     }
 
