@@ -8,6 +8,9 @@ const stage = new Konva.Stage({
     height: 400,
 });
 
+const undoButton = document.getElementById("undo_button");
+const redoButton = document.getElementById("redo_button");
+
 
 // Une couche pour le dessin
 const dessin = new Konva.Layer();
@@ -53,10 +56,11 @@ class UndoManager {
         try {
             command.execute();
             this.undoStack.push(command);
-        } catch(e) {
+            this.updateButtonState();
+        } catch (e) {
             console.log("Erreur. On ne peut pas exécuter la commande !");
         }
-       
+
     }
 
     canUndo() {
@@ -73,6 +77,7 @@ class UndoManager {
             const commande = this.undoStack.pop();
             commande.undo();
             this.redoStack.push(commande)
+            this.updateButtonState();
         }
     }
 
@@ -81,9 +86,14 @@ class UndoManager {
             const commande = this.redoStack.pop();
             commande.execute();
             this.undoStack.push(commande)
+            this.updateButtonState();
         }
     }
 
+    updateButtonState() {
+        undoButton.disabled = !this.canUndo();
+        redoButton.disabled = !this.canRedo();
+    }
 }
 
 
@@ -223,8 +233,6 @@ const polylineMachine = createMachine(
     }
 );
 
-const undoButton = document.getElementById("undo_button");
-const redoButton = document.getElementById("redo_button");
 const undoManager = new UndoManager();
 
 const polylineService = interpret(polylineMachine)
@@ -247,11 +255,11 @@ window.addEventListener("keydown", (event) => {
 });
 
 undoButton.addEventListener("click", () => {
-    console.log("Undo Bouton appuyé !")
+    console.log("Bouton Undo appuyé !")
     undoManager.undo();
 });
 
 redoButton.addEventListener("click", () => {
-    console.log("Redo Bouton appuyé !")
+    console.log("Bouton Redo appuyé !")
     undoManager.redo();
 });
