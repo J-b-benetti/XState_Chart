@@ -90,6 +90,14 @@ class UndoManager {
         }
     }
 
+    /*
+    Dans cette implémentation,
+    la méthode updateButtonState() vérifie d'abord si l'annulation est possible en appelant this.canUndo().
+    Si l'annulation est possible, le bouton Undo est activé (disabled est défini sur false)
+    sinon, le bouton Undo est désactivé (disabled est défini sur true).
+    Ensuite, la méthode fait de même pour le bouton Redo en vérifiant
+    si le rétablissement est possible avec this.canRedo().
+    */
     updateButtonState() {
         undoButton.disabled = !this.canUndo();
         redoButton.disabled = !this.canRedo();
