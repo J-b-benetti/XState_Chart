@@ -1,16 +1,11 @@
-class Commande {
-    constructor(dessin, line) {
-        this._dessin = dessin; //on créé un attribut privé "dessin"
-        this._line = line; //on créé un attribut privé "line"
-    }
-
+class Command {
     execute() {
-        this._dessin.add(this._line);
+        //do nothing
     }
 
     undo() {
-        this._line.remove();
+        //do nothing
     }
 }
 
-export default Commande;
+export default Command;

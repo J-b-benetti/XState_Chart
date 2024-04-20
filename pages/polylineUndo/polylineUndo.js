@@ -1,4 +1,5 @@
 import Stack from './stack';
+import UndoManager from './undoManager';
 import Konva from "konva";
 import { createMachine, interpret } from "xstate";
 
@@ -7,6 +8,7 @@ const stage = new Konva.Stage({
     width: 400,
     height: 400,
 });
+
 
 // Une couche pour le dessin
 const dessin = new Konva.Layer();
@@ -153,6 +155,10 @@ const polylineMachine = createMachine(
     }
 );
 
+const undoButton = document.getElementById("undo");
+const redoButton = document.getElementById("redo");
+const undoManager = new UndoManager();
+
 const polylineService = interpret(polylineMachine)
     .onTransition((state) => {
         console.log("Current state:", state.value);
@@ -171,3 +177,12 @@ window.addEventListener("keydown", (event) => {
     console.log("Key pressed:", event.key);
     polylineService.send(event.key);
 });
+
+undoButton.addEventListener("click", () => {
+    undoManager.undo();
+});
+
+redoButton.addEventListener("click", () => {
+    undoManager.redo();
+});
+
