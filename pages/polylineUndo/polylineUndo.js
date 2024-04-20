@@ -1,5 +1,4 @@
 import Stack from './stack';
-import UndoManager from './undoManager';
 import Konva from "konva";
 import { createMachine, interpret } from "xstate";
 
@@ -19,6 +18,74 @@ stage.add(temporaire);
 
 const MAX_POINTS = 10;
 let polyline // La polyline en cours de construction;
+
+class Command {
+    execute() {
+        //do nothing
+    }
+
+    undo() {
+        //do nothing
+    }
+}
+
+class ConcreteCommand extends Command {
+    constructor(dessin, line) {
+        super();
+        this.dessin = dessin;
+        this.line = line;
+    }
+    execute() {
+        this.dessin.add(this.line);
+    }
+    undo() {
+        this.line.remove();
+    }
+}
+
+class UndoManager {
+    constructor() {
+        this.undoStack = new Stack();
+        this.redoStack = new Stack();
+    }
+
+    execute(command) {
+        try {
+            command.execute();
+            this.undoStack.push(command);
+        } catch(e) {
+            console.log("Erreur. On ne peut pas exécuter la commande !");
+        }
+       
+    }
+
+    canUndo() {
+        return !this.undoStack.isEmpty();
+    }
+
+    canRedo() {
+        return !this.redoStack.isEmpty();
+
+    }
+
+    undo() {
+        if (this.canUndo()) {
+            const commande = this.undoStack.pop();
+            commande.undo();
+            this.redoStack.push(commande)
+        }
+    }
+
+    redo() {
+        if (this.canRedo()) {
+            const commande = this.redoStack.pop();
+            commande.execute();
+            this.undoStack.push(commande)
+        }
+    }
+
+}
+
 
 const polylineMachine = createMachine(
     {
@@ -121,7 +188,8 @@ const polylineMachine = createMachine(
                 polyline.points(newPoints);
                 polyline.stroke("black"); // On change la couleur
                 // On sauvegarde la polyline dans la couche de dessin
-                dessin.add(polyline); // On l'ajoute à la couche de dessin
+                //dessin.add(polyline); // On l'ajoute à la couche de dessin
+                undoManager.execute(new ConcreteCommand(dessin, polyline));
             },
             addPoint: (context, event) => {
                 const pos = stage.getPointerPosition();
@@ -155,8 +223,8 @@ const polylineMachine = createMachine(
     }
 );
 
-const undoButton = document.getElementById("undo");
-const redoButton = document.getElementById("redo");
+const undoButton = document.getElementById("undo_button");
+const redoButton = document.getElementById("redo_button");
 const undoManager = new UndoManager();
 
 const polylineService = interpret(polylineMachine)
@@ -179,10 +247,11 @@ window.addEventListener("keydown", (event) => {
 });
 
 undoButton.addEventListener("click", () => {
+    console.log("Undo Bouton appuyé !")
     undoManager.undo();
 });
 
 redoButton.addEventListener("click", () => {
+    console.log("Redo Bouton appuyé !")
     undoManager.redo();
 });
-
